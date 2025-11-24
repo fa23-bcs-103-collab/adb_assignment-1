@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: goodbooks-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - goodbooks-network
+
+  api:
+    build: .
+    container_name: goodbooks-api
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongodb:27017/
+      - DB_NAME=goodbooks
+      - API_KEY=dev-key-123
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    networks:
+      - goodbooks-network
+    volumes:
+      - ./app:/app/app
+      - ./ingest:/app/ingest
+
+volumes:
+  mongodb_data:
+
+networks:
+  goodbooks-network:
